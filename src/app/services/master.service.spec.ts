@@ -23,4 +23,15 @@ fdescribe('MasterService', () => {
     const masterService = new MasterService(fakeMethod as ValueService);
     expect(masterService.getNewValue()).toBe("my value fake method");
   });
+
+  //4. Implementar un muck spia
+  it('Should return "Fake value spies" and connection to ValueService', () => {
+    const valueServiceSpy = jasmine.createSpyObj('ValueService', ['getValue']);
+
+    valueServiceSpy.getValue.and.returnValue("Fake value spies");
+    const masterService = new MasterService(valueServiceSpy);
+    expect(masterService.getNewValue()).toBe("Fake value spies"); //Valor esperado
+    expect(valueServiceSpy.getValue).toHaveBeenCalled();  // Verificar el llamado
+    expect(valueServiceSpy.getValue).toHaveBeenCalledTimes(1); // Verificar que solo se llame una vez
+  });
 });
