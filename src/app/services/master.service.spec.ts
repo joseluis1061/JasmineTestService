@@ -1,12 +1,32 @@
+import { TestBed } from '@angular/core/testing';
 import { MasterService } from './master.service';
 import { ValueService } from './value.service';
 import { FakeValueService } from './fakeValue.service';
 
 fdescribe('MasterService', () => {
+
+  let masterService: MasterService;
+  let valueService: ValueService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [MasterService, ValueService]
+    });
+    masterService = TestBed.inject(MasterService);
+    valueService = TestBed.inject(ValueService);
+  });
+
+  describe('Service MasterService should created', () => {
+    it('should be created', () => {
+      expect(masterService).toBeTruthy();
+    });
+  })
+
+
   it('should retrun "my value" from real service', () => {
     //1. Como master consume a valueService es necesario instanciarlo
     const valuseService = new ValueService();
-    const masterService = new MasterService(valuseService);
+    //const masterService = new MasterService(valuseService);
     expect(masterService.getNewValue()).toBe("my value");
   });
 
