@@ -1,19 +1,23 @@
 import { TestBed } from '@angular/core/testing';
 import { MasterService } from './master.service';
 import { ValueService } from './value.service';
-import { FakeValueService } from './fakeValue.service';
 
 fdescribe('MasterService', () => {
 
   let masterService: MasterService;
-  let valueService: ValueService;
+  let valueServiceSpy: jasmine.SpyObj<ValueService>;
 
   beforeEach(() => {
+    // Crear el spy para la función getValue del servicio ValueService
+    const spy = jasmine.createSpyObj('ValueService', ['getValue']);
     TestBed.configureTestingModule({
-      providers: [MasterService, ValueService]
+      providers: [
+        MasterService,
+        { provide: ValueService, useValue: spy} // Remplazar nuestro servicio con el spy
+      ]
     });
     masterService = TestBed.inject(MasterService);
-    valueService = TestBed.inject(ValueService);
+    valueServiceSpy = TestBed.inject(ValueService) as jasmine.SpyObj<ValueService>; // Instanciar el servicio en la prueba
   });
 
   describe('Service MasterService should created', () => {
@@ -23,33 +27,9 @@ fdescribe('MasterService', () => {
   })
 
 
-  it('should retrun "my value" from real service', () => {
-    //1. Como master consume a valueService es necesario instanciarlo
-    const valuseService = new ValueService();
-    //const masterService = new MasterService(valuseService);
-    expect(masterService.getNewValue()).toBe("my value");
-  });
-
-  //2. Mediante una clase falsa
-  it('should retrun "my fake value" from fake class service', () => {
-    const fakeValueService = new FakeValueService();
-    const masterService = new MasterService(fakeValueService as unknown as ValueService);
-    expect(masterService.getNewValue()).toBe("my fake value");
-  });
-
-  //3. Mediante un metodo falso
-  it('should retrun "my value fake method" from fake method', () => {
-    const fakeMethod = {getValue: ()=> {return "my value fake method"}};
-    const masterService = new MasterService(fakeMethod as ValueService);
-    expect(masterService.getNewValue()).toBe("my value fake method");
-  });
-
-  //4. Implementar un muck spia
+  //2. Implementar un muck spia usando el que creamos con testBed
   it('Should return "Fake value spies" and connection to ValueService', () => {
-    const valueServiceSpy = jasmine.createSpyObj('ValueService', ['getValue']);
-
-    valueServiceSpy.getValue.and.returnValue("Fake value spies");
-    const masterService = new MasterService(valueServiceSpy);
+    valueServiceSpy.getValue.and.returnValue("Fake value spies"); // Valor que retorna el espia al ser llamado
     expect(masterService.getNewValue()).toBe("Fake value spies"); //Valor esperado
     expect(valueServiceSpy.getValue).toHaveBeenCalled();  // Verificar el llamado
     expect(valueServiceSpy.getValue).toHaveBeenCalledTimes(1); // Verificar que solo se llame una vez
